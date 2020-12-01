@@ -5,5 +5,5 @@ const ERROR_MESSAGE: &str = "Error reading file";
 
 fn main() {
     let file = advent::advent::readFile(FILE_NAME, ERROR_MESSAGE);
-    twenty_twenty_three_entries(file);
+    twenty_twenty_two_entries(file);
 }
