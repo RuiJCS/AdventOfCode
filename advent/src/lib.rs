@@ -12,17 +12,21 @@ pub mod advent {
         contents
     }
 
-    fn read_string_to_vec(input: String) -> Vec<i32> {
+    fn read_string_to_vec_numbers(input: String) -> Vec<i32> {
         let mut vals: Vec<i32> = Vec::new();
         input
-            .split("\n")
+            .lines()
             .filter(|val| String::from(*val).parse::<i32>().is_ok())
             .for_each(|val| vals.push(i32::from_str_radix(val, 10).unwrap()));
         vals
     }
 
+    fn read_string_to_vec(input: &String) -> Vec<String> {
+        input.lines().map(|s| s.to_string()).collect()
+    }
+
     pub fn twenty_twenty_two_entries(input: String) {
-        let vals = read_string_to_vec(input);
+        let vals = read_string_to_vec_numbers(input);
         let res: Vec<i32> = vals
             .clone()
             .into_iter()
@@ -35,7 +39,7 @@ pub mod advent {
 
     /// This makes all the possible permutations, must find a smarter and more efficient way of doing this
     pub fn twenty_twenty_three_entries(input: String) {
-        let vals = read_string_to_vec(input);
+        let vals = read_string_to_vec_numbers(input);
         let res = &vals
             .clone()
             .into_iter()
@@ -51,7 +55,7 @@ pub mod advent {
         );
     }
 
-    pub fn password_parsing_min_max(input: String) {
+    pub fn password_parsing_min_max(input: String) -> u32 {
         let passwords: Vec<&str> = input.split('\n').collect();
         let (mut keys, mut passes): (Vec<&str>, Vec<&str>) = (Vec::new(), Vec::new());
         for password in passwords {
@@ -85,9 +89,10 @@ pub mod advent {
             })
             .count();
         println!("{}", correct_passwords);
+        correct_passwords as u32
     }
 
-    pub fn password_parsing_pos(input: String) {
+    pub fn password_parsing_pos(input: String) -> u32 {
         let passwords: Vec<&str> = input.split('\n').collect();
         let (mut keys, mut passes): (Vec<&str>, Vec<&str>) = (Vec::new(), Vec::new());
         for password in passwords {
@@ -123,5 +128,27 @@ pub mod advent {
             })
             .count();
         println!("{}", correct_passwords);
+        correct_passwords as u32
+    }
+
+    pub fn mountain_sliding(input: &String, velocity_x: i32, velocity_y: u32) -> u32 {
+        let mountain: Vec<String> = read_string_to_vec(input)
+            .into_iter()
+            .filter(|s| !s.is_empty())
+            .collect();
+        let ys: Vec<usize> = (0..mountain.len()).step_by(velocity_y as usize).collect();
+        // mountain.iter().for_each(|s| println!("{}", *s));
+        let (acc, _) = mountain
+            .into_iter()
+            .enumerate()
+            .filter(|e| ys.contains(&e.0))
+            .fold((0u32, 0), |(acc, x), (_, s)| {
+                let shift_x = velocity_x * (x + velocity_x < s.len() as i32) as i32
+                    + (velocity_x - s.len() as i32) * (x + velocity_x >= s.len() as i32) as i32;
+                let tree = 1 * s.chars().nth((x) as usize).unwrap().eq(&'#') as u32;
+                (acc + tree, x + shift_x)
+            });
+        println!("{}", acc);
+        acc
     }
 }
