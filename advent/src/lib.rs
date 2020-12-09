@@ -1,9 +1,10 @@
 pub mod advent {
 
     use itertools::Itertools;
+    use regex::Regex;
     use std::fs::File;
     use std::io::prelude::*;
-    use std::vec::Vec; // 0.8.2
+    use std::{collections::HashMap, vec::Vec};
 
     pub fn read_file(file_name: &str, error_message: &str) -> String {
         let mut file = File::open(file_name).expect(error_message);
@@ -88,7 +89,6 @@ pub mod advent {
                 count >= min && count <= max
             })
             .count();
-        println!("{}", correct_passwords);
         correct_passwords as u32
     }
 
@@ -127,7 +127,6 @@ pub mod advent {
                 x != y && (x == letter || y == letter)
             })
             .count();
-        println!("{}", correct_passwords);
         correct_passwords as u32
     }
 
@@ -148,7 +147,91 @@ pub mod advent {
                 let tree = 1 * s.chars().nth((x) as usize).unwrap().eq(&'#') as u32;
                 (acc + tree, x + shift_x)
             });
-        println!("{}", acc);
         acc
+    }
+
+    fn read_passports(input: &String) -> Vec<String> {
+        input.split("\n\n").map(|s| s.to_string()).collect()
+    }
+
+    pub fn valid_passports_missing_fields(input: &String) -> u32 {
+        let keywords: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        let passports = read_passports(input);
+        let count = passports
+            .iter()
+            .filter(|s| keywords.iter().fold(true, |b, ss| b && (*s).contains(*ss)))
+            .count();
+        count as u32
+    }
+
+    pub fn parse_passport(passport: &HashMap<String, String>) -> bool {
+        let keywords: Vec<&str> = vec!["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
+        passport
+            .iter()
+            .filter(|(key, val)| match (*key).as_str() {
+                "byr" => {
+                    let regex = Regex::new("^((19[2-9][0-9])|(200[0-2]))$").unwrap();
+                    regex.is_match(val)
+                }
+                "iyr" => {
+                    let regex = Regex::new("^20(1\\d|20)$").unwrap();
+                    regex.is_match(val)
+                }
+                "eyr" => {
+                    let regex = Regex::new("^20(2[0-9]|30)$").unwrap();
+                    regex.is_match(val)
+                }
+                "hgt" => {
+                    if val.contains("cm") {
+                        let regex = Regex::new("^1([5-8][0-9]|9[0-3])cm$").unwrap();
+                        regex.is_match(val)
+                    } else if val.contains("in") {
+                        let regex = Regex::new("^(59|6[0-9]|7[0-6])in$").unwrap();
+                        regex.is_match(val)
+                    } else {
+                        false
+                    }
+                }
+                "hcl" => {
+                    let regex = Regex::new("^#[A-Fa-f0-9]{6}$").unwrap();
+                    regex.is_match(val)
+                }
+                "ecl" => {
+                    let regex = Regex::new("^[a-zA-Z]{3}$").unwrap();
+                    let eye = vec!["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
+                    eye.contains(&val.as_str()) && regex.is_match(val)
+                }
+                "pid" => {
+                    let regex = Regex::new("^[0-9]{9}$").unwrap();
+                    regex.is_match(val)
+                }
+                _ => false,
+            })
+            .count()
+            >= 7
+            && keywords.iter().fold(true, |res, key| {
+                passport.contains_key(&(*key).to_string()) && res
+            })
+    }
+
+    pub fn valid_passports_rules(input: &String) -> u32 {
+        let passports = read_passports(input);
+        let passports =
+            passports
+                .iter()
+                .fold(Vec::<HashMap<String, String>>::new(), |mut entry, s| {
+                    entry.push((*s).replace(" ", "\n").lines().collect_vec().iter().fold(
+                        HashMap::<String, String>::new(),
+                        |mut field, s| {
+                            let tuple: (&str, &str) = (*s).split(":").collect_tuple().unwrap();
+                            field.insert(tuple.0.to_string(), tuple.1.to_string());
+                            field
+                        },
+                    ));
+                    entry
+                });
+        passports
+            .iter()
+            .fold(0, |res, m| parse_passport(m) as u32 + res)
     }
 }
