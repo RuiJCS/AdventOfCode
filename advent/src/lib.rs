@@ -13,12 +13,12 @@ pub mod advent {
         contents
     }
 
-    fn read_string_to_vec_numbers(input: String) -> Vec<i32> {
-        let mut vals: Vec<i32> = Vec::new();
+    fn read_string_to_vec_numbers(input: String) -> Vec<u32> {
+        let mut vals: Vec<u32> = Vec::new();
         input
             .lines()
             .filter(|val| String::from(*val).parse::<i32>().is_ok())
-            .for_each(|val| vals.push(i32::from_str_radix(val, 10).unwrap()));
+            .for_each(|val| vals.push(u32::from_str_radix(val, 10).unwrap()));
         vals
     }
 
@@ -26,15 +26,19 @@ pub mod advent {
         input.lines().map(|s| s.to_string()).collect()
     }
 
+
+    /// Resolution for challenge 1 in Advent of Code 
+    ///
+    /// https://adventofcode.com/2020/day/1
     pub fn twenty_twenty_two_entries(input: String) -> u32 {
         let vals = read_string_to_vec_numbers(input);
-        let res: Vec<i32> = vals
+        let res: Vec<u32> = vals
             .clone()
             .into_iter()
             .map(|x| 2020 - x)
             .filter(|x| vals.contains(x))
             .collect();
-        res.into_iter().fold(1, |mul, x| mul * x)
+        res.into_iter().fold(1, |mul, x| mul * x )
     }
 
     /// This makes all the possible permutations, must find a smarter and more efficient way of doing this
@@ -46,10 +50,13 @@ pub mod advent {
             .permutations(3)
             .unique()
             .filter(|val| val[0] + val[1] + val[2] == 2020)
-            .collect::<Vec<Vec<i32>>>()[0];
-        res.iter().fold(1, |mul, x| mul * x
+            .collect::<Vec<Vec<u32>>>()[0];
+        res.iter().fold(1, |mul, x| mul * x)
     }
 
+    /// Resolution for challenge 2 in Advent of Code
+    /// 
+    /// https://adventofcode.com/2020/day/2
     pub fn password_parsing_min_max(input: String) -> u32 {
         let passwords: Vec<&str> = input.split('\n').collect();
         let (mut keys, mut passes): (Vec<&str>, Vec<&str>) = (Vec::new(), Vec::new());
@@ -119,6 +126,9 @@ pub mod advent {
         correct_passwords as u32
     }
 
+    /// Resolution for challenge 3 in Advent of Code
+    /// 
+    /// https://adventofcode.com/2020/day/3
     pub fn mountain_sliding(input: &String, velocity_x: i32, velocity_y: u32) -> u32 {
         let mountain: Vec<String> = read_string_to_vec(input)
             .into_iter()
@@ -138,6 +148,9 @@ pub mod advent {
         acc
     }
 
+    /// Resolution for challenge 4 in Advent of Code
+    /// 
+    /// https://adventofcode.com/2020/day/4
     fn read_passports(input: &String) -> Vec<String> {
         input.split("\n\n").map(|s| s.to_string()).collect()
     }
@@ -223,7 +236,11 @@ pub mod advent {
             .fold(0, |res, m| parse_passport(m) as u32 + res)
     }
 
-    pub fn parse_tickets(input: &String) -> Vec<(Vec<u32>, Vec<u32>)> {
+
+    /// Resolution for challenge 5 in Advent of Code
+    /// 
+    /// https://adventofcode.com/2020/day/5
+    fn parse_tickets(input: &String) -> Vec<(Vec<u32>, Vec<u32>)> {
         input
             .lines()
             .map(|s| {
@@ -246,11 +263,11 @@ pub mod advent {
             .collect::<Vec<(Vec<u32>, Vec<u32>)>>()
     }
 
-    pub fn binary_to_decimal(base: &u32, exponent: &u32) -> u32 {
+    fn binary_to_decimal(base: &u32, exponent: &u32) -> u32 {
         base * 2u32.pow(exponent - 1)
     }
 
-    pub fn parse_tickets_to_map(input: &String) -> HashMap<Vec<u32>, Vec<Vec<u32>>> {
+    fn parse_tickets_to_map(input: &String) -> HashMap<Vec<u32>, Vec<Vec<u32>>> {
         let tickets = input
             .lines()
             .map(|s| {
@@ -283,7 +300,7 @@ pub mod advent {
         )
     }
 
-    pub fn biggest_ticket(input: &String) -> u32 {
+    pub fn highest_ticket(input: &String) -> u32 {
         let tickets = parse_tickets(input);
         tickets.iter().fold(0u32, |max, (row, seat)| {
             let row_number = row
@@ -349,7 +366,10 @@ pub mod advent {
             .0
     }
 
-    pub fn count_different_answers(input: &String) -> u32 {
+    /// Resolution for challenge 6 in Advent of Code
+    /// 
+    /// https://adventofcode.com/2020/day/6
+    pub fn anyone_answers_yes(input: &String) -> u32 {
         input
             .split("\n\n")
             .collect::<Vec<&str>>()
@@ -366,7 +386,7 @@ pub mod advent {
             })
     }
 
-    pub fn count_similar_answers(input: &String) -> u32 {
+    pub fn everyone_answers_yes(input: &String) -> u32 {
         // Break up by group of answers
         input.split("\n\n").collect_vec().iter().fold(0, |acc, s| {
             //Separo por linha
